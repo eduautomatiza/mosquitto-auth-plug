@@ -33,7 +33,7 @@ and authorization (grant permission to subscribe and/or publish to specific topi
 | -------------------------- | :---: | :----:| :--: | :-: | :-:  | :-----: | :---: | :------: | :-: | :---: | :---:
 | authentication             |   Y   | Y     |  Y   |  Y  |  Y   |  Y      |   Y   |    Y     |  Y  |   Y   |   Y
 | superusers                 |       |       |  Y   |  Y  |      |  Y      |   Y   |    Y     |  3  |       |        |
-| acl checking               |   2   | Y     |  Y   |  Y  |      |  Y      |   Y   |    Y     |  3  |   1   |   2
+| acl checking               |   2   | Y     |  Y   |  Y  |      |  Y      |   Y   |    Y     |  3  |   1   |   Y
 | static superusers          |   Y   | Y     |  Y   |  Y  |      |  Y      |   Y   |    Y     |  3  |   Y   |   Y
 
  1. Topic wildcards (+/#) are not supported
@@ -58,7 +58,7 @@ back-end.
 Passwords are obtained from the back-end as PBKDF2 strings (see [Passwords](#passwords) below). If you store a clear-text password or any hash not generated the same way,
 the comparison and the authentication will fail.
 
-The mysql and mongo back-ends support expansion of `%c` and `%u` as clientid and username
+The mysql, mongo and sqlite back-ends support expansion of `%c` and `%u` as clientid and username
 respectively. This allows ACLs in the database to look like this:
 
 ```
@@ -328,11 +328,13 @@ With the `ldap_acl_deny` we return DENY instead of ALLOW for every ACL check. Th
 | --------------- | ----------------- | :---------: | ----------  |
 | dbpath          |                   |     Y       | path to database |
 | sqliteuserquery |                   |     Y       | SQL for users |
+| sqliteaclquery  |                   |             | SQL for acl |
 
 Example:
 
 ```
 auth_opt_sqliteuserquery SELECT pw FROM users WHERE username = ?
+auth_opt_sqliteaclquery SELECT topic FROM acls WHERE (username = ?1) AND (rw >= ?2)
 ```
 
 ### Redis auth
