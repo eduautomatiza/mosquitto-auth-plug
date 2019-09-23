@@ -31,9 +31,16 @@
 
 #include <sqlite3.h>
 
+struct stmt_query{
+	sqlite3_stmt *stmt;
+	char * query;
+	size_t query_length;
+};
+
 struct sqlite_backend {
 	sqlite3 *sq;
-	sqlite3_stmt *stmt;
+	struct stmt_query *user;
+	struct stmt_query *acl;
 };
 
 void *be_sqlite_init();
