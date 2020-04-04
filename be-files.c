@@ -189,7 +189,11 @@ static acl_entry *read_acl_line(const char *line)
 	size_t len;
 	int access;
 
-	if (strncmp("read", line, 4) == 0 && (line[4] == ' ' || line[4] == '\t')) {
+	if (strncmp("readwrite", line, 9) == 0 && (line[9] == ' ' || line[9] == '\t')) {
+		access = MOSQ_ACL_READ | MOSQ_ACL_WRITE;
+		pos = &line[10];
+		for (; (*pos == ' ' || *pos == '\t') && *pos != '\0'; ++pos);
+	} else if (strncmp("read", line, 4) == 0 && (line[4] == ' ' || line[4] == '\t')) {
 		access = MOSQ_ACL_READ;
 		pos = &line[5];
 		for (; (*pos == ' ' || *pos == '\t') && *pos != '\0'; ++pos);
