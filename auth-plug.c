@@ -660,7 +660,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 		clientid ? clientid : "NULL",
 		username ? username : "NULL",
 		topic ? topic : "NULL",
-		access == MOSQ_ACL_READ ? "MOSQ_ACL_READ" : "MOSQ_ACL_WRITE" );
+		access == MOSQ_ACL_READ ? "MOSQ_ACL_READ" : access == MOSQ_ACL_WRITE ? "MOSQ_ACL_WRITE" : access == MOSQ_ACL_SUBSCRIBE ? "MOSQ_ACL_SUBSCRIBE" : "access invalid");
 
 
 	granted = acl_cache_q(clientid, username, topic, access, userdata);

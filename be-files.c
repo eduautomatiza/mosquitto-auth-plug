@@ -189,7 +189,11 @@ static acl_entry *read_acl_line(const char *line)
 	size_t len;
 	int access;
 
-	if (strncmp("read", line, 4) == 0 && (line[4] == ' ' || line[4] == '\t')) {
+	if (strncmp("readwrite", line, 9) == 0 && (line[9] == ' ' || line[9] == '\t')) {
+		access = MOSQ_ACL_READ | MOSQ_ACL_WRITE;
+		pos = &line[10];
+		for (; (*pos == ' ' || *pos == '\t') && *pos != '\0'; ++pos);
+	} else if (strncmp("read", line, 4) == 0 && (line[4] == ' ' || line[4] == '\t')) {
 		access = MOSQ_ACL_READ;
 		pos = &line[5];
 		for (; (*pos == ' ' || *pos == '\t') && *pos != '\0'; ++pos);
@@ -363,9 +367,15 @@ static int do_aclcheck(dllist * acl_list,
 	const char *t;
 	const char *si;
 	char *di;
+	if(!acl_list || !clientid || !username || !topic) return BACKEND_ERROR;
+	if((access & (MOSQ_ACL_SUBSCRIBE | MOSQ_ACL_WRITE | MOSQ_ACL_READ)) == 0) return BACKEND_DEFER;
+	if(access == MOSQ_ACL_SUBSCRIBE) return BACKEND_ALLOW; /* FIXME - implement ACL subscription strings. */
 
 	dllist_for_each_element(acl_list, acl, entry) {
-		for (si = acl->topic, di = buf; *si != '\0';) {
+		if((acl->access & access) == 0){
+			continue;
+		}
+		for (si = acl->topic, di = buf; *si != '\0';) { 
 			switch (*si) {
 			case '%':
 				++si;
@@ -436,3 +446,4 @@ int be_files_aclpatterns_check(const char *clientid,
 }
 
 #endif	/* // BE_FILES */
+
